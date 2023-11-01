@@ -75,7 +75,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	request := CreateUserRequest{}
 
 	if err := render.Bind(r, &request); err != nil {
-		_ = render.Render(w, r, errors.BadRequest(err))
+		_ = render.Render(w, r, errors.BadRequest(err.Error()))
 		return
 	}
 
@@ -122,14 +122,14 @@ func updateUser(w http.ResponseWriter, r *http.Request) {
 	request := UpdateUserRequest{}
 
 	if err := render.Bind(r, &request); err != nil {
-		_ = render.Render(w, r, errors.BadRequest(err))
+		_ = render.Render(w, r, errors.BadRequest(err.Error()))
 		return
 	}
 
 	id := chi.URLParam(r, "id")
 
 	if _, ok := s.List[id]; !ok {
-		_ = render.Render(w, r, errors.NotFound(errors.UserNotFound))
+		_ = render.Render(w, r, errors.NotFound(errors.USER_NOT_FOUND))
 		return
 	}
 
@@ -151,7 +151,7 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
 	if _, ok := s.List[id]; !ok {
-		_ = render.Render(w, r, errors.NotFound(errors.UserNotFound))
+		_ = render.Render(w, r, errors.NotFound(errors.USER_NOT_FOUND))
 		return
 	}
 
