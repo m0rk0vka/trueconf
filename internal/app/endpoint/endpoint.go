@@ -61,7 +61,6 @@ func (e *Endpoint) GetUser(w http.ResponseWriter, r *http.Request) {
 			_ = render.Render(w, r, errors.InternalServerError(err.Error()))
 		}
 		return
-
 	}
 
 	render.JSON(w, r, u)
@@ -88,7 +87,7 @@ func (e *Endpoint) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	render.Status(r, http.StatusNoContent)
+	render.NoContent(w, r)
 }
 
 func (e *Endpoint) DeleteUser(w http.ResponseWriter, r *http.Request) {
@@ -104,9 +103,5 @@ func (e *Endpoint) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render.Status(r, http.StatusNoContent)
-}
-
-func sendErr(w http.ResponseWriter, r *http.Request, err error) {
-
+	render.NoContent(w, r)
 }
