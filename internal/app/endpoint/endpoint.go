@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	validator "github.com/go-playground/validator/v10"
 )
 
 type Service interface {
@@ -38,8 +39,13 @@ func (e *Endpoint) SearchUsers(w http.ResponseWriter, r *http.Request) {
 
 func (e *Endpoint) CreateUser(w http.ResponseWriter, r *http.Request) {
 	req := entity.CreateUserRequest{}
-
 	if err := render.Bind(r, &req); err != nil {
+		_ = render.Render(w, r, errors.BadRequest(err.Error()))
+		return
+	}
+
+	v := validator.New()
+	if err := v.Struct(req); err != nil {
 		_ = render.Render(w, r, errors.BadRequest(err.Error()))
 		return
 	}

@@ -29,8 +29,8 @@ func (c *UpdateUserRequest) Bind(r *http.Request) error {
 }
 
 type CreateUserRequest struct {
-	DisplayName string `json:"display_name"`
-	Email       string `json:"email"`
+	DisplayName string `json:"display_name" validate:"required"`
+	Email       string `json:"email" validate:"email,required"`
 }
 
 func (c *CreateUserRequest) Bind(r *http.Request) error { return nil }
