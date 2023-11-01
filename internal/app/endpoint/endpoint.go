@@ -10,9 +10,8 @@ import (
 )
 
 type Service interface {
-	GetUserStore() entity.UserStore
-	Save(entity.UserStore)
-	CreateUser(entity.CreateUserRequest) string
+	GetUserStore() (entity.UserStore, error)
+	CreateUser(entity.CreateUserRequest) (string, error)
 	UpdateUser(string, entity.UpdateUserRequest) error
 	GetUser(string) (entity.User, error)
 	DeleteUser(string) error
@@ -29,7 +28,11 @@ func New(s Service) *Endpoint {
 }
 
 func (e *Endpoint) SearchUsers(w http.ResponseWriter, r *http.Request) {
-	us := e.s.GetUserStore()
+	us, err := e.s.GetUserStore()
+	if err != nil {
+		_ = render.Render(w, r, errors.InternalServerError(err.Error()))
+		return
+	}
 	render.JSON(w, r, us.List)
 }
 
@@ -41,7 +44,11 @@ func (e *Endpoint) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := e.s.CreateUser(req)
+	id, err := e.s.CreateUser(req)
+	if err != nil {
+		_ = render.Render(w, r, errors.InternalServerError(err.Error()))
+		return
+	}
 
 	render.Status(r, http.StatusCreated)
 	render.JSON(w, r, map[string]interface{}{
