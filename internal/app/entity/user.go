@@ -21,7 +21,7 @@ type UserStore struct {
 }
 
 type UpdateUserRequest struct {
-	DisplayName string `json:"display_name"`
+	DisplayName string `json:"display_name" validate:"required"`
 }
 
 func (c *UpdateUserRequest) Bind(r *http.Request) error {

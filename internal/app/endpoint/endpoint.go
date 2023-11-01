@@ -87,6 +87,12 @@ func (e *Endpoint) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	v := validator.New()
+	if err := v.Struct(req); err != nil {
+		_ = render.Render(w, r, errors.BadRequest(err.Error()))
+		return
+	}
+
 	id := chi.URLParam(r, "id")
 
 	if err := e.s.UpdateUser(id, req); err != nil {
