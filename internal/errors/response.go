@@ -32,3 +32,12 @@ func BadRequest(err error) render.Renderer {
 		ErrorText:      err.Error(),
 	}
 }
+
+func NotFound(err error) render.Renderer {
+	return &ErrResponse{
+		Err:            err,
+		HTTPStatusCode: http.StatusNotFound,
+		StatusText:     "The requested resource was not found.",
+		ErrorText:      err.Error(),
+	}
+}
