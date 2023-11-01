@@ -1,3 +1,4 @@
 # Directories
-bin
-data
+bin/*
+data/*
+logs/*
