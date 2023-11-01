@@ -5,14 +5,11 @@ import (
 	"time"
 
 	"refactoring/internal/app/endpoint"
+	"refactoring/internal/app/service"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
-
-type ()
-
-var ()
 
 func main() {
 	r := chi.NewRouter()
@@ -27,16 +24,19 @@ func main() {
 		w.Write([]byte(time.Now().String()))
 	})
 
+	s := service.New()
+	e := endpoint.New(s)
+
 	r.Route("/api", func(r chi.Router) {
 		r.Route("/v1", func(r chi.Router) {
 			r.Route("/users", func(r chi.Router) {
-				r.Get("/", endpoint.SearchUsers)
-				r.Post("/", endpoint.CreateUser)
+				r.Get("/", e.SearchUsers)
+				r.Post("/", e.CreateUser)
 
 				r.Route("/{id}", func(r chi.Router) {
-					r.Get("/", endpoint.GetUser)
-					r.Patch("/", endpoint.UpdateUser)
-					r.Delete("/", endpoint.DeleteUser)
+					r.Get("/", e.GetUser)
+					r.Patch("/", e.UpdateUser)
+					r.Delete("/", e.DeleteUser)
 				})
 			})
 		})

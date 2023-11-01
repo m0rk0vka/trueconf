@@ -12,7 +12,7 @@ func New() *Service {
 	return &Service{}
 }
 
-func (s *Service) GetUsers() entity.UserStore {
+func (s *Service) GetUserStore() entity.UserStore {
 	f, _ := os.ReadFile(entity.STORE_FILE)
 	us := entity.UserStore{}
 	_ = json.Unmarshal(f, &us)
