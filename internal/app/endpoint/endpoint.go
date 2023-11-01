@@ -13,6 +13,9 @@ type Service interface {
 	GetUserStore() entity.UserStore
 	Save(entity.UserStore)
 	CreateUser(entity.CreateUserRequest) string
+	UpdateUser(string, entity.UpdateUserRequest) error
+	GetUser(string) (entity.User, error)
+	DeleteUser(string) error
 }
 
 type Endpoint struct {
@@ -47,20 +50,24 @@ func (e *Endpoint) CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e *Endpoint) GetUser(w http.ResponseWriter, r *http.Request) {
-	us := e.s.GetUserStore()
 	id := chi.URLParam(r, "id")
 
-	if _, ok := us.List[id]; !ok {
-		_ = render.Render(w, r, errors.NotFound(errors.USER_NOT_FOUND))
+	u, err := e.s.GetUser(id)
+	if err != nil {
+		switch err {
+		case errors.USER_NOT_FOUND:
+			_ = render.Render(w, r, errors.NotFound(err.Error()))
+		default:
+			_ = render.Render(w, r, errors.InternalServerError(err.Error()))
+		}
 		return
+
 	}
 
-	render.JSON(w, r, us.List[id])
+	render.JSON(w, r, u)
 }
 
 func (e *Endpoint) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	us := e.s.GetUserStore()
-
 	req := entity.UpdateUserRequest{}
 
 	if err := render.Bind(r, &req); err != nil {
@@ -70,33 +77,36 @@ func (e *Endpoint) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	id := chi.URLParam(r, "id")
 
-	if _, ok := us.List[id]; !ok {
-		_ = render.Render(w, r, errors.NotFound(errors.USER_NOT_FOUND))
+	if err := e.s.UpdateUser(id, req); err != nil {
+		switch err {
+		case errors.USER_NOT_FOUND:
+			_ = render.Render(w, r, errors.NotFound(err.Error()))
+		default:
+			_ = render.Render(w, r, errors.InternalServerError(err.Error()))
+		}
 		return
+
 	}
-
-	u := us.List[id]
-	u.DisplayName = req.DisplayName
-	us.List[id] = u
-
-	e.s.Save(us)
 
 	render.Status(r, http.StatusNoContent)
 }
 
 func (e *Endpoint) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	us := e.s.GetUserStore()
-
 	id := chi.URLParam(r, "id")
 
-	if _, ok := us.List[id]; !ok {
-		_ = render.Render(w, r, errors.NotFound(errors.USER_NOT_FOUND))
+	if err := e.s.DeleteUser(id); err != nil {
+		switch err {
+		case errors.USER_NOT_FOUND:
+			_ = render.Render(w, r, errors.NotFound(err.Error()))
+		default:
+			_ = render.Render(w, r, errors.InternalServerError(err.Error()))
+		}
 		return
 	}
 
-	delete(us.List, id)
-
-	e.s.Save(us)
-
 	render.Status(r, http.StatusNoContent)
+}
+
+func sendErr(w http.ResponseWriter, r *http.Request, err error) {
+
 }
