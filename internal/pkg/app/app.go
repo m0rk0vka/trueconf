@@ -1,16 +1,20 @@
 package app
 
 import (
+	"flag"
 	"fmt"
-	"log"
 	"net/http"
 	"refactoring/internal/app/endpoint"
 	"refactoring/internal/app/service"
 	"time"
 
+	"refactoring/internal/app/config"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
+
+var flagConfig = flag.String("config", "./config/local.yml", "path to the config file")
 
 type App struct {
 	e *endpoint.Endpoint
@@ -56,9 +60,16 @@ func New() (*App, error) {
 }
 
 func (a *App) Run() error {
-	log.Println("Server running")
+	flag.Parse()
 
-	if err := http.ListenAndServe(":3333", a.r); err != nil {
+	cfg, err := config.Load(*flagConfig)
+	if err != nil {
+		return fmt.Errorf("Failed to load config")
+	}
+
+	addr := fmt.Sprintf(":%v", cfg.ServerPort)
+
+	if err := http.ListenAndServe(addr, a.r); err != nil {
 		return fmt.Errorf("Failed to start http server: %v", err)
 	}
 
