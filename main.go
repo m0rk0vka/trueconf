@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"refactoring/internal/endpoint"
+	"refactoring/internal/app/endpoint"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
