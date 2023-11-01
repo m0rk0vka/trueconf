@@ -129,7 +129,7 @@ func updateUser(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
 	if _, ok := s.List[id]; !ok {
-		_ = render.Render(w, r, errors.BadRequest(errors.UserNotFound))
+		_ = render.Render(w, r, errors.NotFound(errors.UserNotFound))
 		return
 	}
 
