@@ -82,9 +82,9 @@ func (c *UpdateUserRequest) Bind(r *http.Request) error { return nil }
 func (e *Endpoint) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	us := e.s.GetUserStore()
 
-	request := UpdateUserRequest{}
+	req := entity.UpdateUserRequest{}
 
-	if err := render.Bind(r, &request); err != nil {
+	if err := render.Bind(r, &req); err != nil {
 		_ = render.Render(w, r, errors.BadRequest(err.Error()))
 		return
 	}
@@ -97,7 +97,7 @@ func (e *Endpoint) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	u := us.List[id]
-	u.DisplayName = request.DisplayName
+	u.DisplayName = req.DisplayName
 	us.List[id] = u
 
 	e.s.Save(us)
