@@ -14,21 +14,23 @@ import (
 	"github.com/go-chi/render"
 )
 
+type Service interface {
+	GetUsers() entity.UserStore
+}
+
 type Endpoint struct {
+	s Service
 }
 
-func New() *Endpoint {
-	return &Endpoint{}
+func New(s Service) *Endpoint {
+	return &Endpoint{
+		s: s,
+	}
 }
 
-const store = `./data/users.json`
-
-func SearchUsers(w http.ResponseWriter, r *http.Request) {
-	f, _ := ioutil.ReadFile(store)
-	s := entity.UserStore{}
-	_ = json.Unmarshal(f, &s)
-
-	render.JSON(w, r, s.List)
+func (e *Endpoint) SearchUsers(w http.ResponseWriter, r *http.Request) {
+	ul := e.s.GetUsers()
+	render.JSON(w, r, ul.List)
 }
 
 type CreateUserRequest struct {
@@ -39,7 +41,7 @@ type CreateUserRequest struct {
 func (c *CreateUserRequest) Bind(r *http.Request) error { return nil }
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
-	f, _ := ioutil.ReadFile(store)
+	f, _ := ioutil.ReadFile(entity.STORE_FILE)
 	s := entity.UserStore{}
 	_ = json.Unmarshal(f, &s)
 
@@ -61,7 +63,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	s.List[id] = u
 
 	b, _ := json.Marshal(&s)
-	_ = ioutil.WriteFile(store, b, fs.ModePerm)
+	_ = ioutil.WriteFile(entity.STORE_FILE, b, fs.ModePerm)
 
 	render.Status(r, http.StatusCreated)
 	render.JSON(w, r, map[string]interface{}{
@@ -70,7 +72,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
-	f, _ := ioutil.ReadFile(store)
+	f, _ := ioutil.ReadFile(entity.STORE_FILE)
 	s := entity.UserStore{}
 	_ = json.Unmarshal(f, &s)
 
@@ -86,7 +88,7 @@ type UpdateUserRequest struct {
 func (c *UpdateUserRequest) Bind(r *http.Request) error { return nil }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
-	f, _ := ioutil.ReadFile(store)
+	f, _ := ioutil.ReadFile(entity.STORE_FILE)
 	s := entity.UserStore{}
 	_ = json.Unmarshal(f, &s)
 
@@ -109,13 +111,13 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	s.List[id] = u
 
 	b, _ := json.Marshal(&s)
-	_ = ioutil.WriteFile(store, b, fs.ModePerm)
+	_ = ioutil.WriteFile(entity.STORE_FILE, b, fs.ModePerm)
 
 	render.Status(r, http.StatusNoContent)
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	f, _ := ioutil.ReadFile(store)
+	f, _ := ioutil.ReadFile(entity.STORE_FILE)
 	s := entity.UserStore{}
 	_ = json.Unmarshal(f, &s)
 
@@ -129,7 +131,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	delete(s.List, id)
 
 	b, _ := json.Marshal(&s)
-	_ = ioutil.WriteFile(store, b, fs.ModePerm)
+	_ = ioutil.WriteFile(entity.STORE_FILE, b, fs.ModePerm)
 
 	render.Status(r, http.StatusNoContent)
 }
