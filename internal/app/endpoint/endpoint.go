@@ -5,8 +5,8 @@ import (
 	"io/fs"
 	"io/ioutil"
 	"net/http"
-	"refactoring/internal/entity"
-	"refactoring/internal/errors"
+	"refactoring/internal/app/entity"
+	"refactoring/internal/app/errors"
 	"strconv"
 	"time"
 
