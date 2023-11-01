@@ -1,12 +1,13 @@
 package errors
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/render"
 )
 
-const USER_NOT_FOUND string = "User not found"
+var USER_NOT_FOUND error = fmt.Errorf("user_not_found")
 
 // ErrorResponse is the response that represents an error.
 type ErrorResponse struct {
@@ -44,6 +45,16 @@ func NotFound(msg string) render.Renderer {
 	}
 	return &ErrorResponse{
 		Status:  http.StatusNotFound,
+		Message: msg,
+	}
+}
+
+func InternalServerError(msg string) render.Renderer {
+	if msg == "" {
+		msg = "We encountered an error while processing your request."
+	}
+	return &ErrorResponse{
+		Status:  http.StatusInternalServerError,
 		Message: msg,
 	}
 }
