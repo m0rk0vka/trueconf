@@ -1,9 +1,6 @@
 package endpoint
 
 import (
-	"encoding/json"
-	"io/fs"
-	"io/ioutil"
 	"net/http"
 	"refactoring/internal/app/entity"
 	"refactoring/internal/app/errors"
@@ -16,6 +13,7 @@ import (
 
 type Service interface {
 	GetUserStore() entity.UserStore
+	Save(entity.UserStore)
 }
 
 type Endpoint struct {
@@ -60,8 +58,7 @@ func (e *Endpoint) CreateUser(w http.ResponseWriter, r *http.Request) {
 	id := strconv.Itoa(us.Increment)
 	us.List[id] = u
 
-	b, _ := json.Marshal(&us)
-	_ = ioutil.WriteFile(entity.STORE_FILE, b, fs.ModePerm)
+	e.s.Save(us)
 
 	render.Status(r, http.StatusCreated)
 	render.JSON(w, r, map[string]interface{}{
@@ -103,8 +100,7 @@ func (e *Endpoint) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	u.DisplayName = request.DisplayName
 	us.List[id] = u
 
-	b, _ := json.Marshal(&us)
-	_ = ioutil.WriteFile(entity.STORE_FILE, b, fs.ModePerm)
+	e.s.Save(us)
 
 	render.Status(r, http.StatusNoContent)
 }
@@ -121,8 +117,7 @@ func (e *Endpoint) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	delete(us.List, id)
 
-	b, _ := json.Marshal(&us)
-	_ = ioutil.WriteFile(entity.STORE_FILE, b, fs.ModePerm)
+	e.s.Save(us)
 
 	render.Status(r, http.StatusNoContent)
 }

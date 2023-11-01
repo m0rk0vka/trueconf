@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"io/fs"
 	"os"
 	"refactoring/internal/app/entity"
 )
@@ -17,4 +18,9 @@ func (s *Service) GetUserStore() entity.UserStore {
 	us := entity.UserStore{}
 	_ = json.Unmarshal(f, &us)
 	return us
+}
+
+func (s *Service) Save(us entity.UserStore) {
+	b, _ := json.Marshal(&us)
+	_ = os.WriteFile(entity.STORE_FILE, b, fs.ModePerm)
 }
