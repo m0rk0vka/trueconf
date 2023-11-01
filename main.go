@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"io/ioutil"
 	"net/http"
+	"refactoring/internal/entity"
 	"strconv"
 	"time"
 
@@ -16,18 +17,7 @@ import (
 
 const store = `./data/users.json`
 
-type (
-	User struct {
-		CreatedAt   time.Time `json:"created_at"`
-		DisplayName string    `json:"display_name"`
-		Email       string    `json:"email"`
-	}
-	UserList  map[string]User
-	UserStore struct {
-		Increment int      `json:"increment"`
-		List      UserList `json:"list"`
-	}
-)
+type ()
 
 var (
 	UserNotFound = errors.New("user_not_found")
@@ -66,7 +56,7 @@ func main() {
 
 func searchUsers(w http.ResponseWriter, r *http.Request) {
 	f, _ := ioutil.ReadFile(store)
-	s := UserStore{}
+	s := entity.UserStore{}
 	_ = json.Unmarshal(f, &s)
 
 	render.JSON(w, r, s.List)
@@ -81,7 +71,7 @@ func (c *CreateUserRequest) Bind(r *http.Request) error { return nil }
 
 func createUser(w http.ResponseWriter, r *http.Request) {
 	f, _ := ioutil.ReadFile(store)
-	s := UserStore{}
+	s := entity.UserStore{}
 	_ = json.Unmarshal(f, &s)
 
 	request := CreateUserRequest{}
@@ -92,7 +82,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.Increment++
-	u := User{
+	u := entity.User{
 		CreatedAt:   time.Now(),
 		DisplayName: request.DisplayName,
 		Email:       request.DisplayName,
@@ -112,7 +102,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 
 func getUser(w http.ResponseWriter, r *http.Request) {
 	f, _ := ioutil.ReadFile(store)
-	s := UserStore{}
+	s := entity.UserStore{}
 	_ = json.Unmarshal(f, &s)
 
 	id := chi.URLParam(r, "id")
@@ -128,7 +118,7 @@ func (c *UpdateUserRequest) Bind(r *http.Request) error { return nil }
 
 func updateUser(w http.ResponseWriter, r *http.Request) {
 	f, _ := ioutil.ReadFile(store)
-	s := UserStore{}
+	s := entity.UserStore{}
 	_ = json.Unmarshal(f, &s)
 
 	request := UpdateUserRequest{}
@@ -157,7 +147,7 @@ func updateUser(w http.ResponseWriter, r *http.Request) {
 
 func deleteUser(w http.ResponseWriter, r *http.Request) {
 	f, _ := ioutil.ReadFile(store)
-	s := UserStore{}
+	s := entity.UserStore{}
 	_ = json.Unmarshal(f, &s)
 
 	id := chi.URLParam(r, "id")
