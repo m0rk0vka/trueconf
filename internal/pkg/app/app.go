@@ -3,12 +3,14 @@ package app
 import (
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
 	"refactoring/internal/app/endpoint"
 	"refactoring/internal/app/service"
 	"time"
 
 	"refactoring/internal/app/config"
+	"refactoring/pkg/logger"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -19,13 +21,21 @@ var flagConfig = flag.String("config", "./config/local.yml", "path to the config
 type App struct {
 	e *endpoint.Endpoint
 	s *service.Service
+	l *log.Logger
 	r *chi.Mux
 }
 
 func New() (*App, error) {
 	a := &App{}
 
-	a.s = service.New()
+	l, err := logger.New()
+	if err != nil {
+		return nil, fmt.Errorf("New app: %v", err)
+	}
+
+	a.l = l
+
+	a.s = service.New(a.l)
 
 	a.e = endpoint.New(a.s)
 
@@ -60,14 +70,18 @@ func New() (*App, error) {
 }
 
 func (a *App) Run() error {
+	a.l.Println("Running app")
 	flag.Parse()
+	a.l.Println("flags:", flag.Args())
 
 	cfg, err := config.Load(*flagConfig)
 	if err != nil {
 		return fmt.Errorf("Failed to load config")
 	}
+	a.l.Printf("Config: %+v\n", cfg)
 
 	addr := fmt.Sprintf(":%v", cfg.ServerPort)
+	a.l.Printf("Address: %+v\n", addr)
 
 	if err := http.ListenAndServe(addr, a.r); err != nil {
 		return fmt.Errorf("Failed to start http server: %v", err)
