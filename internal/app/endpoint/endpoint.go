@@ -4,8 +4,6 @@ import (
 	"net/http"
 	"refactoring/internal/app/entity"
 	"refactoring/internal/app/errors"
-	"strconv"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
@@ -14,6 +12,7 @@ import (
 type Service interface {
 	GetUserStore() entity.UserStore
 	Save(entity.UserStore)
+	CreateUser(entity.CreateUserRequest) string
 }
 
 type Endpoint struct {
@@ -32,8 +31,6 @@ func (e *Endpoint) SearchUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e *Endpoint) CreateUser(w http.ResponseWriter, r *http.Request) {
-	us := e.s.GetUserStore()
-
 	req := entity.CreateUserRequest{}
 
 	if err := render.Bind(r, &req); err != nil {
@@ -41,17 +38,7 @@ func (e *Endpoint) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	us.Increment++
-	u := entity.User{
-		CreatedAt:   time.Now(),
-		DisplayName: req.DisplayName,
-		Email:       req.DisplayName,
-	}
-
-	id := strconv.Itoa(us.Increment)
-	us.List[id] = u
-
-	e.s.Save(us)
+	id := e.s.CreateUser(req)
 
 	render.Status(r, http.StatusCreated)
 	render.JSON(w, r, map[string]interface{}{
