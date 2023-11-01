@@ -3,8 +3,10 @@ package service
 import (
 	"encoding/json"
 	"io/fs"
+	"log"
 	"os"
 	"refactoring/internal/app/entity"
+	"refactoring/internal/app/errors"
 	"strconv"
 	"time"
 )
@@ -20,6 +22,14 @@ func (s *Service) GetUserStore() entity.UserStore {
 	us := entity.UserStore{}
 	_ = json.Unmarshal(f, &us)
 	return us
+}
+
+func (s *Service) GetUser(id string) (entity.User, error) {
+	us := s.GetUserStore()
+	if !isUserExist(id, us) {
+		return entity.User{}, errors.USER_NOT_FOUND
+	}
+	return us.List[id], nil
 }
 
 func (s *Service) Save(us entity.UserStore) {
@@ -41,4 +51,40 @@ func (s *Service) CreateUser(r entity.CreateUserRequest) string {
 	s.Save(us)
 
 	return id
+}
+
+func isUserExist(id string, us entity.UserStore) bool {
+	_, ok := us.List[id]
+	log.Printf("If id %v exist: %v", id, ok)
+	return ok
+}
+
+func (s *Service) UpdateUser(id string, r entity.UpdateUserRequest) error {
+	us := s.GetUserStore()
+	if !isUserExist(id, us) {
+		return errors.USER_NOT_FOUND
+	}
+
+	u := us.List[id]
+	if r.DisplayName != "" {
+		u.DisplayName = r.DisplayName
+	}
+	us.List[id] = u
+
+	s.Save(us)
+
+	return nil
+}
+
+func (s *Service) DeleteUser(id string) error {
+	us := s.GetUserStore()
+	if !isUserExist(id, us) {
+		return errors.USER_NOT_FOUND
+	}
+
+	delete(us.List, id)
+
+	s.Save(us)
+
+	return nil
 }
