@@ -2,11 +2,11 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"io/fs"
 	"io/ioutil"
 	"net/http"
 	"refactoring/internal/entity"
+	"refactoring/internal/errors"
 	"strconv"
 	"time"
 
@@ -19,9 +19,7 @@ const store = `./data/users.json`
 
 type ()
 
-var (
-	UserNotFound = errors.New("user_not_found")
-)
+var ()
 
 func main() {
 	r := chi.NewRouter()
@@ -77,7 +75,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	request := CreateUserRequest{}
 
 	if err := render.Bind(r, &request); err != nil {
-		_ = render.Render(w, r, ErrInvalidRequest(err))
+		_ = render.Render(w, r, errors.ErrInvalidRequest(err))
 		return
 	}
 
@@ -124,14 +122,14 @@ func updateUser(w http.ResponseWriter, r *http.Request) {
 	request := UpdateUserRequest{}
 
 	if err := render.Bind(r, &request); err != nil {
-		_ = render.Render(w, r, ErrInvalidRequest(err))
+		_ = render.Render(w, r, errors.ErrInvalidRequest(err))
 		return
 	}
 
 	id := chi.URLParam(r, "id")
 
 	if _, ok := s.List[id]; !ok {
-		_ = render.Render(w, r, ErrInvalidRequest(UserNotFound))
+		_ = render.Render(w, r, errors.ErrInvalidRequest(errors.UserNotFound))
 		return
 	}
 
@@ -153,7 +151,7 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
 	if _, ok := s.List[id]; !ok {
-		_ = render.Render(w, r, ErrInvalidRequest(UserNotFound))
+		_ = render.Render(w, r, errors.ErrInvalidRequest(errors.UserNotFound))
 		return
 	}
 
@@ -163,27 +161,4 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 	_ = ioutil.WriteFile(store, b, fs.ModePerm)
 
 	render.Status(r, http.StatusNoContent)
-}
-
-type ErrResponse struct {
-	Err            error `json:"-"`
-	HTTPStatusCode int   `json:"-"`
-
-	StatusText string `json:"status"`
-	AppCode    int64  `json:"code,omitempty"`
-	ErrorText  string `json:"error,omitempty"`
-}
-
-func (e *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
-	render.Status(r, e.HTTPStatusCode)
-	return nil
-}
-
-func ErrInvalidRequest(err error) render.Renderer {
-	return &ErrResponse{
-		Err:            err,
-		HTTPStatusCode: 400,
-		StatusText:     "Invalid request.",
-		ErrorText:      err.Error(),
-	}
 }
