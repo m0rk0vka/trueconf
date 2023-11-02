@@ -2,6 +2,7 @@ package errors
 
 import (
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	assert "github.com/go-playground/assert/v2"
@@ -19,6 +20,13 @@ func TestErrorResponse_StatusCode(t *testing.T) {
 		Status: 400,
 	}
 	assert.Equal(t, 400, e.StatusCode())
+}
+
+func TestErrorResponse_Render(t *testing.T) {
+	e := ErrorResponse{}
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/", nil)
+	assert.Equal(t, nil, e.Render(w, r))
 }
 
 func TestInternalServerError(t *testing.T) {
