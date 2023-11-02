@@ -29,31 +29,31 @@ func (e *ErrorResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func BadRequest(msg string) render.Renderer {
+func BadRequest(msg string) ErrorResponse /*render.Renderer*/ {
 	if msg == "" {
 		msg = "Your request is in a bad format."
 	}
-	return &ErrorResponse{
+	return ErrorResponse{
 		Status:  http.StatusBadRequest,
 		Message: msg,
 	}
 }
 
-func NotFound(msg string) render.Renderer {
+func NotFound(msg string) ErrorResponse /*render.Renderer*/ {
 	if msg == "" {
 		msg = "The requested resource was not found."
 	}
-	return &ErrorResponse{
+	return ErrorResponse{
 		Status:  http.StatusNotFound,
 		Message: msg,
 	}
 }
 
-func InternalServerError(msg string) render.Renderer {
+func InternalServerError(msg string) ErrorResponse /*render.Renderer*/ {
 	if msg == "" {
 		msg = "We encountered an error while processing your request."
 	}
-	return &ErrorResponse{
+	return ErrorResponse{
 		Status:  http.StatusInternalServerError,
 		Message: msg,
 	}

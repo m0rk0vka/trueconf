@@ -52,7 +52,7 @@ func (e *Endpoint) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	e.l.Printf("Request: %v\n", req)
+	e.l.Printf("Request: %+v\n", req)
 	v := validator.New()
 	if err := v.Struct(req); err != nil {
 		_ = render.Render(w, r, errors.BadRequest(err.Error()))

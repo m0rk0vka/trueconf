@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/go-chi/chi/v5 v5.0.4
 	github.com/go-chi/render v1.0.1
+	github.com/go-playground/assert/v2 v2.2.0
 	github.com/go-playground/validator/v10 v10.15.5
 	gopkg.in/yaml.v2 v2.4.0
 )
