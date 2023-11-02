@@ -37,7 +37,7 @@ func New() (*App, error) {
 
 	a.s = service.New(a.l)
 
-	a.e = endpoint.New(a.s)
+	a.e = endpoint.New(a.s, a.l)
 
 	a.r = chi.NewRouter()
 
